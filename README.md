@@ -2,7 +2,7 @@
 
 A simple, minimalist test harness for testing shell scripts (or generally any command-line program).
 
-![A mohawked punk rocker smashing bugs in shell scripts](img/smash_transparent.png)
+![A mohawked punk rocker smashing bugs in shell scripts](img/smash_indexed_400px.png)
 
 I don't write enough tests. I think the friction comes from trying to understand how other people's test frameworks work. So much boilerplate!
 
