@@ -27,7 +27,7 @@ The names and descriptions of the tests auto-discovered from the names of the fu
 
 ```bash
 #!/usr/bin/env bash
-source "$(dirname "$0")/smash.lib"
+source "$(dirname "$0")/sma.sh"
 
 # '--help' produces a usage message and returns non-zero
 test_termlf_dash_dash_help_works() {
@@ -54,6 +54,11 @@ and a typical run looks like this:
 The patterns used to test stderr and stdout (`_stderr=` and `_stdout=`) are POSIX "extended" regular expressions which are anchored at start and end. This means that _your_ pattern must match the whole line, _e.g._, `.*a substring that appears in the middle.*`.
 
 These REs are tested with [Bash's double square bracket conditionals][re], so in case you were wondering, alternation with "`|`" and capture subexpressions such as `(.*)` do not require extra backslashes.
+
+## To-dos
+
+- [ ] give some help if `sma.sh` is run directly
+- [ ] give it a "quiz" mode that helps build the test script by asking a series of questions
 
 ## Author
 
