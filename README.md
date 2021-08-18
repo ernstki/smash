@@ -15,6 +15,16 @@ Smash was extracted from a test script I wrote for [`wurl`][wurl], where it made
 
 That's it.
 
+
+## Installation
+
 I don't want to have to _install_ something, so this will always and only ever be one file that you `source` at the beginning of your test script.
+
+
+## Test auto-discovery
+
+The names and descriptions of the tests auto-discovered from the names of the functions in your test script (_e.g._, `test_termlf_dash_dash_help_works`) and then you just run `run_tests` at the bottom. A typical run looks like this:
+
+![a screenshot of 'smash' in action, invoked from a Makefile](img/screenshot.png)
 
 [wurl]: https://tfinternal.research.cchmc.org/gitlab/sysadmin/wurl
