@@ -20,6 +20,14 @@ That's it.
 
 I don't want to have to _install_ something, so this will always and only ever be one file that you `source` at the beginning of your test script.
 
+```bash
+# if you're on the cluster, you'll need a proxy connection
+pck || pon
+
+# change into your 'tests' directory, then
+wget -o sma.sh https://tf.cchmc.org/get-smash
+```
+
 
 ## Test auto-discovery
 
