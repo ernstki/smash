@@ -15,7 +15,6 @@ Smash was extracted from a test script I wrote for [`wurl`][wurl], where it made
 
 That's it.
 
-
 ## Installation
 
 I don't want to have to _install_ something, so this will always and only ever be one file that you `source` at the beginning of your test script.
@@ -28,7 +27,6 @@ pck || pon
 wget -o sma.sh https://tf.cchmc.org/s/get-smash
 ```
 
-
 ## Test auto-discovery
 
 The names and descriptions of the tests auto-discovered from the names of the functions in your test script (_e.g._, `test_termlf_dash_dash_help_works`) and then you just run `run_tests` at the bottom. A typical test script looks like this
@@ -39,7 +37,7 @@ source "$(dirname "$0")/sma.sh"
 
 # '--help' produces a usage message and returns non-zero
 test_termlf_dash_dash_help_works() {
-    _stdout='.*termlf \[-h|--help\].*'
+    _stdouts='.*termlf \[-h|--help\].*'
     termlf --help
 }
 
@@ -66,7 +64,11 @@ These REs are tested with [Bash's double square bracket conditionals][re], so in
 ## To-dos
 
 - [ ] give some help if `sma.sh` is run directly
-- [ ] give it a "quiz" mode that helps build the test script by asking a series of questions
+- [ ] create a separate `smashquiz` comand (maybe in Rust!) that helps build the test script(s) by asking a series of questions
+
+## References
+
+* for clarity on what is meant by a "test harness" see <https://en.wikipedia.org/wiki/Test_harness>
 
 ## Author
 
