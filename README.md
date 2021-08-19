@@ -25,7 +25,7 @@ I don't want to have to _install_ something, so this will always and only ever b
 pck || pon
 
 # change into your 'tests' directory, then
-wget -o sma.sh https://tf.cchmc.org/get-smash
+wget -o sma.sh https://tf.cchmc.org/s/get-smash
 ```
 
 
