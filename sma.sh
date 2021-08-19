@@ -2,6 +2,7 @@
 ##  smash - simple, minimalist test harnesses for Bash
 ##
 ##  Author:    Kevin Ernst <kevin.ernst@cchmc.org>
+##  Version:   0.1.0
 ##  Date:      13 October 2020
 ##
 # shellcheck disable=SC2128,SC2034,SC2064,SC1117,SC2164
