@@ -44,10 +44,10 @@ Key points for writing test scripts:
 * programs under test are wrapped in shell functions
 * the first part of the test function's name must match the test _filename_,
   with the extension removed, and with dashes converted to underscores
-    * _e.g._, all test functions in `test_my-groovy-script.sh` must start with
-      `test_my_groovy_script_` if they are to be auto-discovered; see
-      [the example below](#example)
-    * see also #2
+    * _e.g._, test functions in `test_my-groovy-script.sh` must start with
+      `test_my_groovy_script_` if they are to be auto-discovered
+    * see [the example below](#example)
+    * this restriction may change, though; see #2
 * the conditions of the test are specified using "magic" variables;
   [see below](#magic-variables)
 * finally, you invoke the test executor (smash) with `run_tests` at the bottom
