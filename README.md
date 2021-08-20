@@ -82,12 +82,13 @@ A typical test script looks like this:
 # assuming 'sma.sh' is stored alongside the test script
 source "$(dirname "$0")/sma.sh"
 
+# '--help' produces expected message on stdout and returns 0 (success)
 test_python_dash_dash_help_works() {
-    # this is an ERE, so note that '?' is special here
     _stdout='.*To report bugs, visit: https?://.*'
     python.py --help
 }
 
+# returns 2 and has expected error message on stderr
 test_python_running_with_no_FILE_argument_fails() {
     _exit_code=2
     _stderr='.*the following arguments are required: FILE'
