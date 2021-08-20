@@ -134,7 +134,31 @@ This means that **you** will need to escape RE metacharacters like `[`, `(`,
 `.`, `?`, and `*` if you want to match them literally, and you will probably
 want to use a single-quoted string so you don't have to escape the `\`s, too.
 This should rarely be necessary, though; just use `.*` and do a less precise
-match instead. 
+match instead.
+
+## B-b-b-but, what happens if I need to …?
+
+This test framework written _in_ Bash, primarily for testing small
+programs written in scripting languages such as Bash, Perl, and Python.
+
+The intention is that the built-in capabilities of the Bash shell will be
+used to assemble the conditions for test cases, and smash, apart from
+checking outputs and return values, should mostly stay out of the way.
+
+If you can get it to produce output that you can match with `_stdout` or
+`_stderr` and return zero/non-zero, you can already test it with smash.
+
+In the Unix shell, the return value of a function is either that of an
+explicit `return` statement, or else that of the last command to run. This
+is what smash will check to determine if the test passed or failed.
+
+Want to compare known-good input with known-good output? Wrap a test
+function around `diff`, which always returns 1 if there are differences,
+0 if there are none.
+
+Want to test some web site is up, or an API is returning good data? Just
+use `curl -sS`, or pipe into `grep -q`, or match `_stdout` against part
+of the expected response.
 
 ## To-dos
 
