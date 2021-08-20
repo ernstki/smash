@@ -80,7 +80,7 @@ A typical test script looks like this:
 
 ```bash
 #!/usr/bin/env bash
-# test-termlf.sh - test suite for 'termlf'
+# test-python.sh - test suite for a script named 'python.py'
 
 # assuming 'sma.sh' is stored alongside the test script
 source "$(dirname "$0")/sma.sh"
