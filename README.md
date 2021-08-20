@@ -13,14 +13,14 @@ made sense to abstract out the repetitive parts into a library of sorts. Its
 current and planned **intentionally-narrow scope** is
 
 * it tests return/exit codes and yields an error if it doesn't match the
-  expected (`_exit_code=2`)
+  expected (_e.g._, `_exit_code=2`)
 * it tests that output matches [a pattern](#pattern-matching) you provide
-  (`_stdout="some string"`)
+  (_e.g._, `_stdout=".*some output.*"`)
 * it tests that stderr is either empty, or matches
-  [a pattern](#pattern-matching) you provide (`_stderr=` or `_stderr="expected
+  [a pattern](#pattern-matching) you provide (_e.g._, `_stderr=".*expected
   error message"`)
 * and it automatically cleans up temp files/directories that you
-  designate within a test block (e.g,. `_temp_file=$(mktemp XXXXXX)`)
+  designate within a test block (_e.g._, `_temp_file=$(mktemp XXXXXX)`)
 
 That's it.
 
