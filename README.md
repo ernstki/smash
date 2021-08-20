@@ -50,12 +50,12 @@ Key points for writing test scripts:
     * this restriction may change, though; see #2
 * the conditions of the test are specified using "magic" variables;
   [see below](#magic-variables)
-* finally, you invoke the test executor (smash) with `run_tests` at the bottom
+* finally, you invoke the test executor with `run_tests` at the bottom
 
 ### "Magic" variables
 
-Currently, smash recognizes the following test conditions through the use of
-magic variables defined in the body of individual functions:
+Currently, smash recognizes the following directives through the use of magic
+variables defined in the body of individual test functions:
 
 | Magic variable | …expects this         | …and does this
 | -------------- | ------------          | ------------------
