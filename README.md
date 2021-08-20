@@ -35,6 +35,9 @@ pck || pon
 
 # change into your 'tests' directory, then
 wget -o sma.sh https://tf.cchmc.org/s/get-smash
+
+# or
+curl -Lo sma.sh https://tf.cchmc.org/s/get-smash
 ```
 
 ## Usage

@@ -5,6 +5,11 @@
 ##  Version:   0.2.1
 ##  Date:      19 August 2021
 ##
+##  Fetch the latest version:
+##    $ wget -o sma.sh https://tf.cchmc.org/s/get-smash
+##  or:
+##    $ curl -Lo sma.sh https://tf.cchmc.org/s/get-smash
+##
 # shellcheck disable=SC2128,SC2034,SC2064,SC1117,SC2164
 
 # bail on unset variables
