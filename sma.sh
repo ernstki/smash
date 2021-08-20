@@ -4,6 +4,7 @@
 ##  Author:    Kevin Ernst <kevin.ernst@cchmc.org>
 ##  Version:   0.2.1
 ##  Date:      19 August 2021
+##  License:   MIT
 ##
 ##  Fetch the latest version:
 ##    $ wget -o sma.sh https://tf.cchmc.org/s/get-smash
