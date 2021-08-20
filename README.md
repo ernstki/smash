@@ -141,6 +141,11 @@ match instead.
 * for clarity on what is meant by a "test harness" see
   <https://en.wikipedia.org/wiki/Test_harness>
 
+## Credits
+
+Graphic is "Smash capitalism" from
+[openclipart.org](https://openclipart.org/detail/1090/smash-capitalism)
+
 ## Author
 
 Kevin Ernst ([kevin.ernst@cchmc.org](mailto:kevin.ernst@cchmc.org))
