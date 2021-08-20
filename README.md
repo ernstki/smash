@@ -118,18 +118,18 @@ so:
 if [[ $stdout =~ ^$_stdout$ ]]; then …
 ```
 
-This means that undefined/empty string implicitly means that _nothing_ appeared
-on that particular output stream. This also means that _your_ pattern must
-match the whole line if you want to match a substring somewhere in the middle,
-_e.g._, `.*something in the middle.*`.
+As a result, if these variables are undefined or set to the empty string, it
+signifies that _nothing_ appeared on that particular output stream. This also
+means that _your_ pattern must match the whole line if you want to match a
+substring somewhere in the middle, _e.g._, `.*something in the middle.*`.
 
 In case you were wondering, [Bash's double square bracket conditionals][re]
 support alternation with "`|`" and the parentheses in capture subexpressions
-such as `(.*)` do not need to be escaped with backslashes. This means that
-**you** will need to escape RE metacharacters like `[`, `(`, `.`, `?`, and `*`
-if you want to match them literally, and you will probably want to use a
-single-quoted string so you don't have to escape the `\`s, too.
+such as `(.*)` do not need to be escaped with backslashes.
 
+This means that **you** will need to escape RE metacharacters like `[`, `(`,
+`.`, `?`, and `*` if you want to match them literally, and you will probably
+want to use a single-quoted string so you don't have to escape the `\`s, too.
 This should rarely be necessary, though; just use `.*` and do a less precise
 match instead. 
 
