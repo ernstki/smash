@@ -19,9 +19,8 @@ current and planned **intentionally-narrow scope** is
 * it tests that stderr is either empty, or matches
   [a pattern](#pattern-matching) you provide (`_stderr=` or `_stderr="expected
   error message"`)
-* and it automatically cleans up temporary files or directories that you
-  designate within a test block (`_temp_file=$(mktemp testXXXXXX)` or 
-  `_temp_dir=$(mktemp -d testXXXXXX)`)
+* and it automatically cleans up temp files/directories that you
+  designate within a test block (e.g,. `_temp_file=$(mktemp XXXXXX)`)
 
 That's it.
 
