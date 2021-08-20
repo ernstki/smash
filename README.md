@@ -79,6 +79,7 @@ A typical test script looks like this:
 #!/usr/bin/env bash
 # test-termlf.sh - test suite for 'termlf'
 
+# assuming 'sma.sh' is stored alongside the test script
 source "$(dirname "$0")/sma.sh"
 
 # '--help' produces a usage message and returns non-zero
