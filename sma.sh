@@ -6,11 +6,17 @@
 ##  Date:      19 August 2021
 ##
 # shellcheck disable=SC2128,SC2034,SC2064,SC1117,SC2164
+
+# bail on unset variables
 set -u
 
-MYDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
-# set the path to be the parent directory, and <parent>/bin
-PATH="$MYDIR/..:$MYDIR/../bin:$PATH"
+# the tests script sourcing this one
+CALLER=${BASH_SOURCE[1]}
+# the directory it lives in
+TESTDIR=$(cd "$(dirname "$CALLER")"; pwd)
+# add its directory nd <parent>/bin to the search path so we can find the
+# program under test w/out weird relative paths
+PATH="$TESTDIR/..:$TESTDIR/../bin:$PATH"
 
 # display colors if stdout is a terminal
 if [[ -t 1 ]]; then
@@ -32,8 +38,10 @@ NOT_OK="${YELLOW}IFFY$RESET"
 FAIL="${RED}FAIL$RESET"
 
 
-# actually run the tests
-#
+##
+##  actually run the tests
+##
+
 # Discovery works like this: look for all shell functions defined in the parent
 # script (BASH_SOURCE[1]) prefixed with name of the parent, with any extension
 # (like '.sh') removed, and any dashes converted to underscores.
@@ -42,7 +50,7 @@ FAIL="${RED}FAIL$RESET"
 # defined as 'test_scriptname_whatever()' will be run in the order they appear
 # in that script. The 'function' keyword is optional.
 run_tests() {
-    local caller=${BASH_SOURCE[1]}
+    local caller=$CALLER
     local passed=0
     local iffy=0
     local failed=0

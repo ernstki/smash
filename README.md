@@ -82,16 +82,16 @@ A typical test script looks like this:
 # assuming 'sma.sh' is stored alongside the test script
 source "$(dirname "$0")/sma.sh"
 
-# '--help' produces a usage message and returns non-zero
-test_termlf_dash_dash_help_works() {
-    _stdouts='.*termlf \[-h|--help\].*'
-    termlf --help
+test_python_dash_dash_help_works() {
+    # this is an ERE, so note that '?' is special here
+    _stdout='.*To report bugs, visit: https?://.*'
+    python.py --help
 }
 
-test_termlf_prints_error_for_bad_option() {
-    _stderr='Unknown option: bogus'
-    _exit_code=1
-    termlf --bogus
+test_python_running_with_no_FILE_argument_fails() {
+    _exit_code=2
+    _stderr='.*the following arguments are required: FILE'
+    python.py
 }
 
 ⋮
