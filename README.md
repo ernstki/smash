@@ -1,7 +1,7 @@
 # smash
 
-A simple, minimalist test harness for testing shell scripts (or generally any
-command-line program).
+A simple, minimalist test harness for functional testing of shell scripts (or
+generally any command-line programs).
 
 ![A mohawked punk rocker smashing bugs in shell scripts](img/smash_indexed_reduced.png)
 
