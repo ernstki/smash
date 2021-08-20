@@ -144,7 +144,6 @@ programs written in scripting languages such as Bash, Perl, and Python.
 The intention is that the built-in capabilities of the Bash shell will be
 used to assemble the conditions for test cases, and smash, apart from
 checking outputs and return values, should mostly stay out of the way.
-
 If you can get it to produce output that you can match with `_stdout` or
 `_stderr` and return zero/non-zero, you can already test it with smash.
 
