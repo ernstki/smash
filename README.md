@@ -15,10 +15,10 @@ current and planned **intentionally-narrow scope** is
 * it tests return/exit codes and yields an error if it doesn't match the
   expected (_e.g._, `_exit_code=2`)
 * it tests that output matches [a pattern](#pattern-matching) you provide
-  (_e.g._, `_stdout=".*some output.*"`)
+  (_e.g._, `_stdout='.*some output.*'`)
 * it tests that stderr is either empty, or matches
-  [a pattern](#pattern-matching) you provide (_e.g._, `_stderr=".*expected
-  error message"`)
+  [a pattern](#pattern-matching) you provide (_e.g._, `_stderr='.*expected
+  error message'`)
 * and it automatically cleans up temp files/directories that you
   designate within a test block (_e.g._, `_temp_file=$(mktemp XXXXXX)`)
 
