@@ -59,13 +59,13 @@ variables defined in the body of individual test functions:
 
 | Magic variable | …expects this         | …and does this
 | -------------- | ------------          | ------------------
-| `_stdout`      | an [ERE][^fn1]        | requires that pattern matches the _entire_ stdout output
-| `_stderr`      | an [ERE][^fn1]        | requires that pattern matches the _entire_ stderr output
+| `_stdout`      | an ERE<sup>\*</sup>   | requires that pattern matches the _entire_ stdout output
+| `_stderr`      | an ERE<sup>\*</sup>   | requires that pattern matches the _entire_ stderr output
 | `_exit_code`   | a number              | requires that the program under test returns this exit code
 | `_temp_file`   | `$(mktemp XXXXXX)`    | removes this file after the test finishes, except if `--no-cleanup` is given
 | `_temp_file`   | `$(mktemp -d XXXXXX)` | recursively removes this directory after the test finishes, except if `--no-cleanup` is given
 
-[^fn1]: extended or "modern" regular expresion; see [`man 7 regex`](https://linux.die.net/man/7/regex)
+_<sup>*</sup>**ERE** = extended or "modern" regular expression; see [`man 7 regex`](https://linux.die.net/man/7/regex)_
 
 ### Example
 
