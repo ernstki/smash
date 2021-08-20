@@ -69,7 +69,7 @@ variables defined in the body of individual test functions:
 | `_stderr`      | an ERE<sup>\*</sup>   | requires that pattern matches the _entire_ stderr output
 | `_exit_code`   | a number              | requires that the program under test returns this exit code
 | `_temp_file`   | `$(mktemp XXXXXX)`    | removes this file after the test finishes, except if `--no-cleanup` is given
-| `_temp_file`   | `$(mktemp -d XXXXXX)` | recursively removes this directory after the test finishes, except if `--no-cleanup` is given
+| `_temp_dir`    | `$(mktemp -d XXXXXX)` | recursively removes this directory after the test finishes, except if `--no-cleanup` is given
 
 _<sup>*</sup>**ERE** = extended or "modern" regular expression; see [`man 7 regex`](https://linux.die.net/man/7/regex)_
 
