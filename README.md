@@ -124,11 +124,11 @@ match the whole line if you want to match a substring somewhere in the middle,
 _e.g._, `.*something in the middle.*`.
 
 In case you were wondering, [Bash's double square bracket conditionals][re]
-support alternation with "`|`", backreferences, and capture subexpressions such
-as `(.*)` do not need to be escaped backslashes. This means that **you** will
-need to escape RE metacharacters like `[`, `(`, `.`, `?`, and `*` if you want
-to match them literally, and you will probably want to use a single-quoted
-string so you don't have to escape the `\`s, too.
+support alternation with "`|`" and the parentheses in capture subexpressions
+such as `(.*)` do not need to be escaped with backslashes. This means that
+**you** will need to escape RE metacharacters like `[`, `(`, `.`, `?`, and `*`
+if you want to match them literally, and you will probably want to use a
+single-quoted string so you don't have to escape the `\`s, too.
 
 This should rarely be necessary, though; just use `.*` and do a less precise
 match instead. 
