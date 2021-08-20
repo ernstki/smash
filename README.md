@@ -108,8 +108,8 @@ and a typical run looks like this:
 
 ## Pattern matching
 
-The patterns used to test stderr and stdout (`_stderr=` and `_stdout=`) are
-"modern" (or what POSIX refers to as "extended") regular expressions.
+The patterns used in the magic variables `_stderr=` and `_stdout=` are "modern"
+(or what POSIX refers to as "extended") regular expressions.
 
 When tested, your pattern is automatically anchored at the start and end, like
 so:
