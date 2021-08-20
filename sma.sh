@@ -2,15 +2,12 @@
 ##  smash - simple, minimalist test harnesses for Bash
 ##
 ##  Author:    Kevin Ernst <kevin.ernst@cchmc.org>
-##  Version:   0.1.0
-##  Date:      13 October 2020
+##  Version:   0.2.0
+##  Date:      19 August 2021
 ##
 # shellcheck disable=SC2128,SC2034,SC2064,SC1117,SC2164
 set -u
-# FIXME: couldn't get this to work, even *with* 'set -eE'
-# trap 'echo -e "\nError in ${FUNCNAME[0]} at line #${BASH_LINENO[0]}" >&2' ERR
 
-# FIXME: why was this so complicated again, instead of just '$(dirname $0)'?
 MYDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
 # set the path to be the parent directory, and <parent>/bin
 PATH="$MYDIR/..:$MYDIR/../bin:$PATH"
@@ -34,11 +31,6 @@ OK="${GREEN}OK$RESET"
 NOT_OK="${YELLOW}IFFY$RESET"
 FAIL="${RED}FAIL$RESET"
 
-# specify expected stdout output; this gets 'eval'd in the parent script
-# (this was a good idea, but I outgrew it fast)
-#expect_stdout() {
-#    echo "if [[ \${1:-} == --expected-stdout ]]; then echo '$1'; return; fi"
-#}
 
 # actually run the tests
 #
@@ -86,6 +78,9 @@ run_tests() {
     readarray -t tests \
         < <(sed -n "s/^\(function \)*${testpref}_\(.*\) *().*/\2/p" "$caller")
 
+    echo "${BOLD}RUNNING TESTS: $BLUE$caller$RESET"
+    echo
+
     for test in "${tests[@]}"; do
         # function itself can override these "_"-prefixed ones
         _stdout='.*'  # allow any non-error output
@@ -97,11 +92,10 @@ run_tests() {
         outlog=$(mktemp "${test}-outXXXXXX")
         errlog=$(mktemp "${test}-errXXXXXX")
 
-        echo
-        echo -n "Test '${test//_/ }' ... "
+        echo -n "  Test '${test//_/ }' ... "
 
         # define "_"-variables, run test, and capture output
-        ${testpref}_$test 2>"$errlog" >"$outlog"; ret=$?
+        "${testpref}_$test" 2>"$errlog" >"$outlog"; ret=$?
         stdout=$(cat "$outlog")
         stderr=$(cat "$errlog")
 
@@ -122,24 +116,28 @@ run_tests() {
             iffy=$(( iffy + 1 ))
             echo "$NOT_OK (exit $_exit_code OK, bad output)"
 
-            echo "  Expected stdout =~ $BOLD${_stdout:-[empty]}$RESET, got:"
+            echo "    Expected stdout =~ $BOLD${_stdout:-[empty]}$RESET, got:"
             if [[ $stdout ]]; then
-                fold -s -w 72 "$outlog" | sed 's/^/    > /'
+                # FIXME: maybe truncate to ten lines or something
+                #        (time to wrap this in a function)
+                fold -s -w 72 "$outlog" | sed 's/^/      > /'
             else
-                echo "    [nothing]"
+                echo "      [nothing]"
             fi
 
-            echo "  Expected stderr =~ $BOLD${_stderr:-[empty]}$RESET, got:"
+            echo "    Expected stderr =~ $BOLD${_stderr:-[empty]}$RESET, got:"
             if [[ $stderr ]]; then
-                fold -s -w 72 "$errlog" | sed 's/^/    ! /'
+                fold -s -w 72 "$errlog" | sed 's/^/      ! /'
             else
-                echo "    [nothing]"
+                echo "      [nothing]"
             fi
+            echo
 
         else
-           failed=$(( failed + 1 ))
+            failed=$(( failed + 1 ))
             echo "$FAIL (exit $ret)"
-            fold -s -w 72 "$errlog" | sed 's/^/  ! /'
+            fold -s -w 72 "$errlog" | sed 's/^/    ! /'
+            echo
         fi
 
         if (( _cleanup )); then
@@ -149,9 +147,11 @@ run_tests() {
             [[ -d ${_temp_dir:-} ]]  && rm -rf "$_temp_dir"
         fi
 
-    done
+    done  # for test in tests
 
-    echo
+    # failed/iffy tests print their own (extra) newline
+    if (( ${#tests[*]} == passed )); then echo; fi
+
     echo -n "${BOLD}RESULTS:$RESET "
     (( passed )) && echo -n "[$OK=$passed] "
     (( iffy ))   && echo -n "[$NOT_OK=$iffy] "
@@ -160,5 +160,8 @@ run_tests() {
 
     (( failed )) && exit 1
 }  # run_tests()
+
+# TODO: yield some help/usage or go into interactive mode if run directly
+# if [[ $0 == "$BASH_SOURCE" ]]; then …
 
 # vim: ft=sh
