@@ -1,12 +1,15 @@
 # smash
 
-A simple, minimalist test harness for functional testing of shell scripts (or
-generally any command-line programs).
+A simple, minimalist test harness for functional testing of command-line
+programs, in ~200 lines of Bash script.
 
 ![A mohawked punk rocker smashing bugs in shell scripts](img/smash_indexed_reduced.png)
 
 I don't write enough tests. I think the friction comes from trying to
 understand how other people's test frameworks work. So much boilerplate!
+There's `setUp`s and `tearDown`s and mocks and factory functions and a
+dozen different assertions you have to try to memorize! That's all warranted
+for very big, very professional projects, but I'm not working at that scale.
 
 Smash was extracted from a test script I wrote for [`wurl`][wurl], where it
 made sense to abstract out the repetitive parts into a library of sorts. Its
