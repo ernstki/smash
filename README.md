@@ -37,7 +37,7 @@ be one file that you `source` at the beginning of your test script.
 pck || pon
 
 # change into your 'tests' directory, then
-wget -o sma.sh https://tf.cchmc.org/s/get-smash
+wget -O sma.sh https://tf.cchmc.org/s/get-smash
 
 # or
 curl -Lo sma.sh https://tf.cchmc.org/s/get-smash
