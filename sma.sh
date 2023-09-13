@@ -44,6 +44,7 @@ fi
 OK="${GREEN}OK$RESET"
 NOT_OK="${YELLOW}IFFY$RESET"
 FAIL="${RED}FAIL$RESET"
+ERROR="${RED}ERROR$RESET"
 
 
 ##
@@ -83,7 +84,7 @@ run_tests() {
                 cleanup=
                 ;;
             *)
-                echo "ERROR: Unrecognized option '$1'." >&2
+                echo "$ERROR: Unrecognized option '$1'." >&2
                 exit 1
                 ;;
         esac
@@ -93,6 +94,11 @@ run_tests() {
     # scan the calling script for '[function] test_scriptname_testname()"
     readarray -t tests \
         < <(sed -n "s/^\(function \)*${testpref}_\(.*\) *().*/\2/p" "$caller")
+
+    if [[ ${#tests[@]} -eq 0 ]]; then
+        echo "$ERROR: No tests were discovered." >&2
+        exit 1
+    fi
 
     echo "${BOLD}RUNNING TESTS: $BLUE$caller$RESET"
     echo
