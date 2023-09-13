@@ -187,6 +187,10 @@ put this in your ~/.shellcheckrc to suppress the normal warning:
 
     $(tput dim)# https://github.com/koalaman/shellcheck/wiki/Directive#external-sources$(tput sgr0)
     external-sources=true
+
+Then add this directive, exactly as shown, to the top of your test script:
+
+    # shellcheck source-path=SCRIPTDIR
 " >&2
     exit 1
 fi
