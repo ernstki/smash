@@ -16,8 +16,8 @@
 # bail on unset variables
 set -u
 
-# the tests script sourcing this one
-CALLER=${BASH_SOURCE[1]}
+# the test script sourcing this one
+CALLER=${BASH_SOURCE[1]:?"'${BASH_SOURCE[0]##*/}' should be sourced from within your test script."}
 # the directory it lives in
 TESTDIR=$(cd "$(dirname "$CALLER")"; pwd)
 # add its directory nd <parent>/bin to the search path so we can find the
