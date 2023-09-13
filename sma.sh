@@ -172,7 +172,7 @@ run_tests() {
     (( failed )) && echo -n "[$FAIL=$failed]"
     echo
 
-    (( failed )) && exit 1
+    if (( failed )); then exit 1; fi
 }  # run_tests()
 
 # TODO: yield some help/usage or go into interactive mode if run directly
