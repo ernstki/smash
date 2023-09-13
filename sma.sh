@@ -13,6 +13,8 @@
 ##
 # shellcheck disable=SC2128,SC2034,SC2064,SC1117,SC2164
 
+# set TRACE=1 in the environment to enable executation tracing
+(( TRACE )) && set -x
 # bail on unset variables
 set -u
 
