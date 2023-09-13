@@ -17,7 +17,7 @@
 set -u
 
 # the test script sourcing this one
-CALLER=${BASH_SOURCE[1]:?"'${BASH_SOURCE[0]##*/}' should be sourced from within your test script."}
+CALLER=${BASH_SOURCE[1]:-}
 # the directory it lives in
 TESTDIR=$(cd "$(dirname "$CALLER")"; pwd)
 # add its directory nd <parent>/bin to the search path so we can find the
@@ -175,7 +175,20 @@ run_tests() {
     if (( failed )); then exit 1; fi
 }  # run_tests()
 
-# TODO: yield some help/usage or go into interactive mode if run directly
-# if [[ $0 == "$BASH_SOURCE" ]]; then …
+if [[ $0 == "${BASH_SOURCE[0]}" ]]; then
+    echo "
+You need to source '${BASH_SOURCE[0]##*/}' from your test script, like so:
+
+    $(tput dim)# assuming 'sma.sh' is in the same directory as your script…$(tput sgr0)
+    source \"\${0%/*}/sma.sh\"
+
+If you are using ShellCheck via an editor plugin (such as Syntastic for Vim),
+put this in your ~/.shellcheckrc to suppress the normal warning:
+
+    $(tput dim)# https://github.com/koalaman/shellcheck/wiki/Directive#external-sources$(tput sgr0)
+    external-sources=true
+" >&2
+    exit 1
+fi
 
 # vim: ft=sh
