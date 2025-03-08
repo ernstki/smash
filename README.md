@@ -11,9 +11,10 @@ There's `setUp`s and `tearDown`s and mocks and factory functions and a
 dozen different assertions you have to try to memorize! That's all warranted
 for very big, very professional projects, but I'm not working at that scale.
 
-Smash was extracted from a test script I wrote for [`wurl`][wurl], where it
-made sense to abstract out the repetitive parts into a library of sorts. Its
-current and planned **intentionally-narrow scope** is
+Smash was extracted from a test script I wrote for some other
+moderately-complex command-line utility, where it made sense to abstract out
+the repetitive parts into a library of sorts. Its current and planned
+**intentionally-narrow scope** is
 
 * it tests return/exit codes and yields an error if it doesn't match the
   expected (_e.g._, `_exit_code=2`)
@@ -178,11 +179,12 @@ Graphic is "Smash capitalism" from
 
 ## Author
 
-Kevin Ernst ([kevin.ernst@cchmc.org](mailto:kevin.ernst@cchmc.org))
+Kevin Ernst ([ernstki@mail.uc.edu](mailto:ernstki@mail.uc.edu))
+
+Copyright Cincinnati Children's Hospital Medical Center and the author(s).
 
 ## License
 
 MIT.
 
-[wurl]: https://tfinternal.research.cchmc.org/gitlab/sysadmin/wurl
 [re]: https://www.gnu.org/software/bash/manual/html_node/Conditional-Constructs.html#index-_005b_005b
