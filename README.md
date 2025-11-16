@@ -38,26 +38,63 @@ be one file that you `source` at the beginning of your test script.
 pck || pon
 
 # change into your 'tests' directory, then
-wget -O sma.sh https://tf.cchmc.org/s/get-smash
+wget https://ernstki.github.io/smash
 
 # or
-curl -Lo sma.sh https://tf.cchmc.org/s/get-smash
+curl -LOJ https://ernstki.github.io/smash
 ```
 
 ## Usage
 
+Add this line to the top of your script
+```bash
+source "$(dirname "$0")"/../smash
+```
+
+In the body of your script, create some test functions named
+`test_something_something`; dashes are allowed here. Then, at the bottom of
+your script, include this line to actually invoke the tests:
+
+```bash
+run_tests "$@"
+```
+
+[See below](#example) for more examples, or see 
+[smash's own tests](../../tree/master/tests), which are written with smash.
+
 Key points for writing test scripts:
 
 * programs under test are wrapped in shell functions
-* the first part of the test function's name must match the test _filename_,
+    * for convenience, the parent directory of the test script, its parent, and
+      `../bin` are all put in the `$PATH` when the the test script runs
+* if the shell function returns non-zero, the test fails
+    * **the return value of the function is the exit code of the last command
+      to run**; this is standard Bash behavior, and smash adheres to the
+      Principle of Least Surprise here
+    * however, you can use `test_func_name() ( set -e; […] )` if you want _any_
+      non-zero exit to terminate the test
+* the first part of the test function's name must start with `test_`,
   with the extension removed, and with dashes converted to underscores
     * _e.g._, test functions in `test_my-groovy-script.sh` must start with
       `test_my_groovy_script_` if they are to be auto-discovered
-    * see [the example below](#example)
-    * this restriction may change, though; see #2
+    * see [the examples below](#examples)
 * the conditions of the test are specified using "magic" variables;
   [see below](#magic-variables)
-* finally, you invoke the test executor with `run_tests` at the bottom
+* finally, you invoke the test executor with `run_tests "$@"` at the bottom
+    * the `$@` is necessary so that you can use the `--no-cleanup` option
+
+### Use with ShellCheck
+
+If you're using [ShellCheck][], you'll probably want to put this at the top of
+your script, too:
+
+```bash
+# shellcheck disable=SC2154 source=/dev/null
+```
+
+This suppress the _[Can't follow non-constant source][sc1090]_ warning, and
+warnings about the use of [magic variables](#magic-variables), which are
+defined outside the scope of your test script.
 
 ### "Magic" variables
 
@@ -74,43 +111,12 @@ variables defined in the body of individual test functions:
 
 _<sup>*</sup>**ERE** = extended or "modern" regular expression; see [`man 7 regex`](https://linux.die.net/man/7/regex)_
 
-### Example
+Lastly, `_test_dir` is provided as the absolute pathname to the parent
+directory of the test script itself. This can be used, for example, to import
+libraries or run scripts that aren't in the test script's parent directory or
+its parent (see the note in [Usage](#usage) about `$PATH`).
 
-The names and descriptions of the tests auto-discovered from the names of the
-functions in your test script (_e.g._, `test_termlf_dash_dash_help_works`) and
-then you just add `run_tests` at the bottom.
-
-A typical test script looks like this:
-
-```bash
-#!/usr/bin/env bash
-# test-python.sh - test suite for a script named 'python.py'
-
-# assuming 'sma.sh' is stored alongside the test script
-source "$(dirname "$0")/sma.sh"
-
-# '--help' produces expected message on stdout and returns 0 (success)
-test_python_dash_dash_help_works() {
-    _stdout='.*To report bugs, visit: https?://.*'
-    python.py --help
-}
-
-# returns 2 and has expected error message on stderr
-test_python_running_with_no_FILE_argument_fails() {
-    _exit_code=2
-    _stderr='.*the following arguments are required: FILE'
-    python.py
-}
-
-⋮
-run_tests
-```
-
-and a typical run looks like this:
-
-![a screenshot of 'smash' in action, invoked from a Makefile](img/screenshot.png)
-
-## Pattern matching
+### Pattern matching
 
 The patterns used in the magic variables `_stderr=` and `_stdout=` are "modern"
 (or what POSIX refers to as "extended") regular expressions.
@@ -137,6 +143,43 @@ want to use a single-quoted string so you don't have to escape the `\`s, too.
 This should rarely be necessary, though; just use `.*` and do a less precise
 match instead.
 
+## Examples
+
+The names and descriptions of the tests auto-discovered from the names of the
+functions in your test script (_e.g._, `test_termlf_dash_dash_help_works`) and
+then you just add `run_tests` at the bottom.
+
+A typical test script looks like this:
+
+```bash
+#!/usr/bin/env bash
+# test-python.sh - test suite for a script named 'python.py'
+
+# assuming 'smash' is stored alongside the test script
+source "$(dirname "$0")"/smash
+
+# '--help' produces expected message on stdout and returns 0 (success)
+test_python_dash_dash_help_works() {
+    _stdout='.*To report bugs, visit: https?://.*'
+    python.py --help
+}
+
+# returns 2 and has expected error message on stderr
+test_python_running_with_no_FILE_argument_fails() {
+    _exit_code=2
+    _stderr='.*the following arguments are required: FILE'
+    python.py
+}
+
+⋮
+run_tests "${@}"
+```
+
+and a typical run looks like this:
+
+![a screenshot of 'smash' in action, invoked from a Makefile](img/screenshot.png)
+
+
 ## B-b-b-but, what happens if I need to …?
 
 This test framework written _in_ Bash, primarily for testing small
@@ -161,11 +204,10 @@ Want to test some web site is up, or an API is returning good data? Just
 use `curl -sS`, or pipe into `grep -q`, or match `_stdout` against part
 of the expected response.
 
-## To-dos
+## Future directions
 
-- [ ] give some help if `sma.sh` is run directly
-- [ ] create a separate `smashquiz` comand (maybe in Rust!) that helps build
-  the test script(s) by asking a series of questions
+- create a separate `smashquiz` comand that helps build the test script(s) by
+  asking a series of questions
 
 ## References
 
@@ -187,4 +229,6 @@ Copyright Cincinnati Children's Hospital Medical Center and the author(s).
 
 MIT.
 
+[shellcheck]: https://www.shellcheck.net
+[sc1090]: https://www.shellcheck.net/wiki/SC1090
 [re]: https://www.gnu.org/software/bash/manual/html_node/Conditional-Constructs.html#index-_005b_005b

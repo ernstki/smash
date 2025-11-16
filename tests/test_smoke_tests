@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2154 source=/dev/null
+source "$(dirname "$0")"/../smash
+
+test_smash_creates_a_temp_file() {
+    _stdout=expected
+    _temp_file=$(mktemp smoketestfileXXXXXX)
+    echo expected > $_temp_file || return 1
+    grep expected $_temp_file
+}
+
+test_smash_creates_a_temp_directory() {
+    _temp_dir=$(mktemp -d smoketestdirXXXXXX)
+    test -d $_temp_dir
+}
+
+run_tests "$@"

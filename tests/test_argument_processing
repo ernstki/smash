@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2154 source=/dev/null
+source "$(dirname "$0")"/../smash
+
+test_whether_--version_works() {
+    _stdout='[1-9]*[0-9]+\.[0-9]+\.[0-9]+'
+    bash "$_test_dir"/../smash --version
+}
+
+test_whether_running_smash_with_no_args_gripes() {
+    _exit_code=1
+    _stderr=".*You need to source 'smash'.*"
+    bash "$_test_dir"/../smash
+}
+
+test_whether_--no-cleanup_works() {
+    _temp_dir=$(mktemp -d nocleanupXXXXXX)
+    _stdout='.*smoketestfile.*smoketestdir.*'
+    _stderr='NOTE: Skipping cleanup.*'
+    pushd $_temp_dir &>/dev/null
+    bash "$_test_dir"/test_smoke_tests --no-cleanup >/dev/null
+    popd &>/dev/null
+    find $_temp_dir -type f -name "smoketestfile*"
+    find $_temp_dir -type d -name "smoketestdir*"
+}
+
+run_tests "$@"

@@ -1,28 +1,29 @@
+#!/usr/bin/env bash
 ##
 ##  smash - simple, minimalist test harnesses for Bash
 ##
-##  Author:    Kevin Ernst <kevin.ernst@cchmc.org>
-##  Version:   0.2.1
-##  Date:      19 August 2021
+##  Author:    Kevin Ernst <ernstki@mail.uc.edu>
+##  Date:      19 August 2021; updated 15 November 2025
 ##  License:   MIT
 ##
 ##  Fetch the latest version:
-##    $ wget -o sma.sh https://tf.cchmc.org/s/get-smash
+##    $ wget https://ernstki.github.io/smash
 ##  or:
-##    $ curl -Lo sma.sh https://tf.cchmc.org/s/get-smash
+##    $ curl -LOJ https://ernstki.github.io/smash
 ##
 # shellcheck disable=SC2128,SC2034,SC2064,SC1117,SC2164
 
 # set TRACE=1 in the environment to enable executation tracing
 (( TRACE )) && set -x
-# bail on unset variables
+# bail on unset variables (FIXME: no useful error message when this happens)
 set -u
 
+VERSION=0.3.0
 # the test script sourcing this one
 CALLER=${BASH_SOURCE[1]:-}
 # the directory it lives in
 TESTDIR=$(cd "$(dirname "$CALLER")"; pwd)
-# add its directory nd <parent>/bin to the search path so we can find the
+# add its directory and <parent>/bin to the search path so we can find the
 # program under test w/out weird relative paths
 PATH="$TESTDIR/..:$TESTDIR/../bin:$PATH"
 
@@ -35,15 +36,17 @@ if [[ -t 1 ]]; then
     YELLOW=$(tput setaf 3)
     BLUE=$(tput setaf 4)
     MAGENTA=$(tput setaf 5)
+    CYAN=$(tput setaf 6)
     WHITE=$(tput setaf 7)
     RESET=$(tput sgr0)
 else
-    UL=;BOLD=;RED=;GREEN=;YELLOW=;BLUE=;MAGENTA=;WHITE=;RESET=
+    UL=;BOLD=;RED=;GREEN=;YELLOW=;BLUE=;MAGENTA=;CYAN=;WHITE=;RESET=
 fi
 
 OK="${GREEN}OK$RESET"
 NOT_OK="${YELLOW}IFFY$RESET"
 FAIL="${RED}FAIL$RESET"
+NOTE="${BOLD}${CYAN}NOTE$RESET"
 ERROR="${RED}ERROR$RESET"
 
 
@@ -52,12 +55,7 @@ ERROR="${RED}ERROR$RESET"
 ##
 
 # Discovery works like this: look for all shell functions defined in the parent
-# script (BASH_SOURCE[1]) prefixed with name of the parent, with any extension
-# (like '.sh') removed, and any dashes converted to underscores.
-#
-# For example; if the parent script is named test-scriptname.sh, functions
-# defined as 'test_scriptname_whatever()' will be run in the order they appear
-# in that script. The 'function' keyword is optional.
+# script (BASH_SOURCE[1]) prefixed with $testpref, e.g., 'test_some_function'.
 run_tests() {
     local caller=$CALLER
     local passed=0
@@ -67,11 +65,14 @@ run_tests() {
     local outlog errlog
     local testpref test _temp_file _temp_dir
     local _stdout _stderr _exit_code
+    local _test_dir=$TESTDIR
 
-    # ex: tests/test-termlf.sh -> test_termlf
-    testpref=${caller##*/}
-    testpref=${testpref%.*}
-    testpref=${testpref//-/_}
+    # to be VERY explicit, you could require that the tests match the script
+    # name; uncomment these if that's what's desired
+    #testpref=${caller##*/}
+    #testpref=${testpref%.*}
+    #testpref=${testpref//-/_}
+    testpref='test_'
 
     # parse command-line args
     local cleanup=1
@@ -81,6 +82,7 @@ run_tests() {
             --no-cleanup)
                 # don't clean up temp files; override this for an individual
                 # test by setting '_cleanup=0' within the test function
+                echo "$NOTE: Skipping cleanup; p.w.d. is $PWD" >&2;
                 cleanup=
                 ;;
             *)
@@ -91,9 +93,9 @@ run_tests() {
         shift
     done
 
-    # scan the calling script for '[function] test_scriptname_testname()"
+    # scan the calling script for '[function] ${testpref}_testname()"
     readarray -t tests \
-        < <(sed -n "s/^\(function \)*${testpref}_\(.*\) *().*/\2/p" "$caller")
+        < <(sed -n "s/^\(function \)*${testpref}\(.*\) *().*/\2/p" "$caller")
 
     if [[ ${#tests[@]} -eq 0 ]]; then
         echo "$ERROR: No tests were discovered." >&2
@@ -114,10 +116,10 @@ run_tests() {
         outlog=$(mktemp "${test}-outXXXXXX")
         errlog=$(mktemp "${test}-errXXXXXX")
 
-        echo -n "  Test '${test//_/ }' ... "
+        echo -n "  Testing ${test//_/ } ... "
 
         # define "_"-variables, run test, and capture output
-        "${testpref}_$test" 2>"$errlog" >"$outlog"; ret=$?
+        "${testpref}$test" 2>"$errlog" >"$outlog"; ret=$?
         stdout=$(cat "$outlog")
         stderr=$(cat "$errlog")
 
@@ -184,21 +186,24 @@ run_tests() {
 }  # run_tests()
 
 if [[ $0 == "${BASH_SOURCE[0]}" ]]; then
+    if [[ ${1:-} == '--version' ]]; then
+        echo $VERSION
+        exit
+    fi
     echo "
 You need to source '${BASH_SOURCE[0]##*/}' from your test script, like so:
 
-    $(tput dim)# assuming 'sma.sh' is in the same directory as your script…$(tput sgr0)
-    source \"\${0%/*}/sma.sh\"
+    $(tput dim)# assuming 'smash' is in the same directory as your script…$(tput sgr0)
+    source \"\$(dirname \"\$0\")\"/smash
 
-If you are using ShellCheck via an editor plugin (such as Syntastic for Vim),
-put this in your ~/.shellcheckrc to suppress the normal warning:
+If you are using ShellCheck, this suppresses some (expected) warnings:
 
-    $(tput dim)# https://github.com/koalaman/shellcheck/wiki/Directive#external-sources$(tput sgr0)
-    external-sources=true
-
-Then add this directive, exactly as shown, to the top of your test script:
-
-    # shellcheck source-path=SCRIPTDIR
+    $(tput dim)# shellcheck disable=SC2154 source=/dev/null$(tput sgr0)
+    $(tput dim)# for details, see:$(tput sgr0)
+    $(tput dim)# - https://github.com/koalaman/shellcheck/wiki/Directive#external-sources$(tput sgr0)
+    $(tput dim)# - https://www.shellcheck.net/wiki/SC1090$(tput sgr0)
+    $(tput dim)# - https://www.shellcheck.net/wiki/SC2154$(tput sgr0)
+    source \"\$(dirname \"\$0\")\"/smash
 " >&2
     exit 1
 fi
