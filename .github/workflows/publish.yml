@@ -18,9 +18,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout gh-pages
-          git checkout $GITHUB_REF_NAME smash 
-          git status --porcelain | grep -q . || exit
-          git add smash
-          # source: https://stackoverflow.com/a/949391
-          git commit -m"Update smash from $ref @t$(git rev-parse --short=7 HEAD)"
-          git push
+          git checkout $GITHUB_REF_NAME smash
+          if git status --porcelain | grep -q .; then
+              git add smash
+              # source: https://stackoverflow.com/a/949391
+              git commit -m"Update smash from $ref @t$(git rev-parse --short=7 HEAD)"
+              git push
+          fi
