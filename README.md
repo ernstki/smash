@@ -38,10 +38,10 @@ be one file that you `source` at the beginning of your test script.
 pck || pon
 
 # change into your 'tests' directory, then
-wget https://ernstki.github.io/smash
+wget https://ernstki.github.io/smash/smash
 
 # or
-curl -LOJ https://ernstki.github.io/smash
+curl -LOJ https://ernstki.github.io/smash/smash
 ```
 
 ## Usage

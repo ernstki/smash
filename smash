@@ -7,9 +7,9 @@
 ##  License:   MIT
 ##
 ##  Fetch the latest version:
-##    $ wget https://ernstki.github.io/smash
+##    $ wget https://ernstki.github.io/smash/smash
 ##  or:
-##    $ curl -LOJ https://ernstki.github.io/smash
+##    $ curl -LOJ https://ernstki.github.io/smash/smash
 ##
 # shellcheck disable=SC2128,SC2034,SC2064,SC1117,SC2164
 
