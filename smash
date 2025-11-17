@@ -143,7 +143,7 @@ run_tests() {
                 ( ! $stdout =~ ^$_stdout$ || ! $stderr =~ ^$_stderr$ ) ]]
         then
             status=iffy
-            echo "$NOT_OK (exit $_exit_code OK, bad output)"
+            echo "$NOT_OK (exit ${_exit_code:+$_exit_code }OK, bad output)"
 
             echo "    Expected stdout =~ $BOLD${_stdout:-[empty]}$RESET, got:"
             if [[ $stdout ]]; then
