@@ -18,7 +18,7 @@
 # bail on unset variables (FIXME: no useful error message when this happens)
 set -u
 
-VERSION=0.3.0
+VERSION=0.3.1
 # the test script sourcing this one
 CALLER=${BASH_SOURCE[1]:-}
 # the directory it lives in
