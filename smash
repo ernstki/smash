@@ -1,0 +1,211 @@
+#!/usr/bin/env bash
+##
+##  smash - simple, minimalist test harnesses for Bash
+##
+##  Author:    Kevin Ernst <ernstki@mail.uc.edu>
+##  Date:      19 August 2021; updated 15 November 2025
+##  License:   MIT
+##
+##  Fetch the latest version:
+##    $ wget https://ernstki.github.io/smash
+##  or:
+##    $ curl -LOJ https://ernstki.github.io/smash
+##
+# shellcheck disable=SC2128,SC2034,SC2064,SC1117,SC2164
+
+# set TRACE=1 in the environment to enable executation tracing
+(( TRACE )) && set -x
+# bail on unset variables (FIXME: no useful error message when this happens)
+set -u
+
+VERSION=0.3.0
+# the test script sourcing this one
+CALLER=${BASH_SOURCE[1]:-}
+# the directory it lives in
+TESTDIR=$(cd "$(dirname "$CALLER")"; pwd)
+# add its directory and <parent>/bin to the search path so we can find the
+# program under test w/out weird relative paths
+PATH="$TESTDIR/..:$TESTDIR/../bin:$PATH"
+
+# display colors if stdout is a terminal
+if [[ -t 1 ]]; then
+    UL=$(tput sgr 0 1)
+    BOLD=$(tput bold)
+    RED=$(tput setaf 1)
+    GREEN=$(tput setaf 2)
+    YELLOW=$(tput setaf 3)
+    BLUE=$(tput setaf 4)
+    MAGENTA=$(tput setaf 5)
+    CYAN=$(tput setaf 6)
+    WHITE=$(tput setaf 7)
+    RESET=$(tput sgr0)
+else
+    UL=;BOLD=;RED=;GREEN=;YELLOW=;BLUE=;MAGENTA=;CYAN=;WHITE=;RESET=
+fi
+
+OK="${GREEN}OK$RESET"
+NOT_OK="${YELLOW}IFFY$RESET"
+FAIL="${RED}FAIL$RESET"
+NOTE="${BOLD}${CYAN}NOTE$RESET"
+ERROR="${RED}ERROR$RESET"
+
+
+##
+##  actually run the tests
+##
+
+# Discovery works like this: look for all shell functions defined in the parent
+# script (BASH_SOURCE[1]) prefixed with $testpref, e.g., 'test_some_function'.
+run_tests() {
+    local caller=$CALLER
+    local passed=0
+    local iffy=0
+    local failed=0
+    local tests=()
+    local outlog errlog
+    local testpref test _temp_file _temp_dir
+    local _stdout _stderr _exit_code
+    local _test_dir=$TESTDIR
+
+    # to be VERY explicit, you could require that the tests match the script
+    # name; uncomment these if that's what's desired
+    #testpref=${caller##*/}
+    #testpref=${testpref%.*}
+    #testpref=${testpref//-/_}
+    testpref='test_'
+
+    # parse command-line args
+    local cleanup=1
+
+    while (( $# )); do
+        case $1 in
+            --no-cleanup)
+                # don't clean up temp files; override this for an individual
+                # test by setting '_cleanup=0' within the test function
+                echo "$NOTE: Skipping cleanup; p.w.d. is $PWD" >&2;
+                cleanup=
+                ;;
+            *)
+                echo "$ERROR: Unrecognized option '$1'." >&2
+                exit 1
+                ;;
+        esac
+        shift
+    done
+
+    # scan the calling script for '[function] ${testpref}_testname()"
+    readarray -t tests \
+        < <(sed -n "s/^\(function \)*${testpref}\(.*\) *().*/\2/p" "$caller")
+
+    if [[ ${#tests[@]} -eq 0 ]]; then
+        echo "$ERROR: No tests were discovered." >&2
+        exit 1
+    fi
+
+    echo "${BOLD}RUNNING TESTS: $BLUE$caller$RESET"
+    echo
+
+    for test in "${tests[@]}"; do
+        # function itself can override these "_"-prefixed ones
+        _stdout='.*'  # allow any non-error output
+        _stderr=      # allow nothing on stderr that wasn't expected
+        _exit_code=0
+        _temp_file=
+        _temp_dir=
+        _cleanup=$cleanup
+        outlog=$(mktemp "${test}-outXXXXXX")
+        errlog=$(mktemp "${test}-errXXXXXX")
+
+        echo -n "  Testing ${test//_/ } ... "
+
+        # define "_"-variables, run test, and capture output
+        "${testpref}$test" 2>"$errlog" >"$outlog"; ret=$?
+        stdout=$(cat "$outlog")
+        stderr=$(cat "$errlog")
+
+        # stdout, stderr, and expected exit code all match
+        # FIXME: maybe use 'grep' so we're not limited to environment size
+        if [[ $ret -eq $_exit_code &&
+              $stdout =~ ^$_stdout$ &&
+              $stderr =~ ^$_stderr$ ]]
+        then
+            passed=$(( passed + 1 ))
+            echo "$OK"
+
+        # the exit code matches, but some output was unaccounted for
+        elif [[ $ret -eq $_exit_code && 
+                ( ! $stdout =~ ^$_stdout$ ||
+                  ! $stderr =~ ^$_stderr$ ) ]]
+        then
+            iffy=$(( iffy + 1 ))
+            echo "$NOT_OK (exit $_exit_code OK, bad output)"
+
+            echo "    Expected stdout =~ $BOLD${_stdout:-[empty]}$RESET, got:"
+            if [[ $stdout ]]; then
+                # FIXME: maybe truncate to ten lines or something
+                #        (time to wrap this in a function)
+                fold -s -w 72 "$outlog" | sed 's/^/      > /'
+            else
+                echo "      [nothing]"
+            fi
+
+            echo "    Expected stderr =~ $BOLD${_stderr:-[empty]}$RESET, got:"
+            if [[ $stderr ]]; then
+                fold -s -w 72 "$errlog" | sed 's/^/      ! /'
+            else
+                echo "      [nothing]"
+            fi
+            echo
+
+        else
+            failed=$(( failed + 1 ))
+            echo "$FAIL (exit $ret)"
+            fold -s -w 72 "$errlog" | sed 's/^/    ! /'
+            echo
+        fi
+
+        if (( _cleanup )); then
+            rm -f "$outlog" "$errlog"
+            # clean these up if they were defined in the test function
+            [[ -f ${_temp_file:-} ]] && rm -f "$_temp_file"
+            [[ -d ${_temp_dir:-} ]]  && rm -rf "$_temp_dir"
+        fi
+
+    done  # for test in tests
+
+    # failed/iffy tests print their own (extra) newline
+    if (( ${#tests[*]} == passed )); then echo; fi
+
+    echo -n "${BOLD}RESULTS:$RESET "
+    (( passed )) && echo -n "[$OK=$passed] "
+    (( iffy ))   && echo -n "[$NOT_OK=$iffy] "
+    (( failed )) && echo -n "[$FAIL=$failed]"
+    echo
+
+    if (( failed )); then exit 1; fi
+}  # run_tests()
+
+if [[ $0 == "${BASH_SOURCE[0]}" ]]; then
+    if [[ ${1:-} == '--version' ]]; then
+        echo $VERSION
+        exit
+    fi
+    echo "
+You need to source '${BASH_SOURCE[0]##*/}' from your test script, like so:
+
+    $(tput dim)# assuming 'smash' is in the same directory as your script…$(tput sgr0)
+    source \"\$(dirname \"\$0\")\"/smash
+
+If you are using ShellCheck, this suppresses some (expected) warnings:
+
+    $(tput dim)# shellcheck disable=SC2154 source=/dev/null$(tput sgr0)
+    $(tput dim)# for details, see:$(tput sgr0)
+    $(tput dim)# - https://github.com/koalaman/shellcheck/wiki/Directive#external-sources$(tput sgr0)
+    $(tput dim)# - https://www.shellcheck.net/wiki/SC1090$(tput sgr0)
+    $(tput dim)# - https://www.shellcheck.net/wiki/SC2154$(tput sgr0)
+    source \"\$(dirname \"\$0\")\"/smash
+" >&2
+    exit 1
+fi
+
+# vim: ft=sh
