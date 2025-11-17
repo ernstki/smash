@@ -5,10 +5,10 @@
 ##  Author:    Kevin Ernst <ernstki@mail.uc.edu>
 ##  Date:      19 August 2021; updated 15 November 2025
 ##  License:   MIT
+##  Homepage:  https://ernstki.github.io/smash
 ##
 ##  Fetch the latest version:
-##    $ wget https://ernstki.github.io/smash/smash
-##  or:
+##    $ wget https://ernstki.github.io/smash/smash  # or…
 ##    $ curl -LOJ https://ernstki.github.io/smash/smash
 ##
 # shellcheck disable=SC2128,SC2034,SC2064,SC1117,SC2164
