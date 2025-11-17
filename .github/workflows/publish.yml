@@ -1,13 +1,11 @@
-name: copy-master-smash-to-gh-pages
-
 on: 
   push:
     branches:
       - master
-      - test-actions-publish
+      - test-actions
 
 jobs:
-  deploy-to-gh-pages:
+  copy-smash-to-gh-pages:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository at gh-pages branch
