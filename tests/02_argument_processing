@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2154 source=/dev/null
+# shellcheck disable=SC2154,SC2086 source=/dev/null
 source "$(dirname "$0")"/../smash
 
 test_whether_--version_works() {
@@ -17,9 +17,9 @@ test_whether_--no-cleanup_works() {
     _temp_dir=$(mktemp -d nocleanupXXXXXX)
     _stdout='.*smoketestfile.*smoketestdir.*'
     _stderr='NOTE: Skipping cleanup.*'
-    pushd $_temp_dir &>/dev/null
-    bash "$_test_dir"/test_smoke_tests --no-cleanup >/dev/null
-    popd &>/dev/null
+    pushd $_temp_dir &>/dev/null || return 1
+    bash "$_test_dir"/01_smoke_tests --no-cleanup >/dev/null
+    popd &>/dev/null || return 1
     find $_temp_dir -type f -name "smoketestfile*"
     find $_temp_dir -type d -name "smoketestdir*"
 }

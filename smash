@@ -26,6 +26,7 @@ TESTDIR=$(cd "$(dirname "$CALLER")"; pwd)
 # add its directory and <parent>/bin to the search path so we can find the
 # program under test w/out weird relative paths
 PATH="$TESTDIR/..:$TESTDIR/../bin:$PATH"
+FOLDWIDTH=72
 
 # display colors if stdout is a terminal
 if [[ -t 1 ]]; then
@@ -49,6 +50,13 @@ FAIL="${RED}FAIL$RESET"
 NOTE="${BOLD}${CYAN}NOTE$RESET"
 ERROR="${RED}ERROR$RESET"
 
+fold() {
+    command fold -s -w $FOLDWIDTH "$1" # FIXME: limit lines? (issue #5)
+}
+
+indent() {
+    { if (( $# == 0 )); then cat; else echo "$*"; fi; } | sed 's/^/      > /'
+}
 
 ##
 ##  actually run the tests
@@ -103,13 +111,12 @@ run_tests() {
     fi
 
     echo "${BOLD}RUNNING TESTS: $BLUE$caller$RESET"
-    echo
 
     for test in "${tests[@]}"; do
-        # function itself can override these "_"-prefixed ones
+        # defaults for these three can be overridden by test function
         _stdout='.*'  # allow any non-error output
         _stderr=      # allow nothing on stderr that wasn't expected
-        _exit_code=0
+        _exit_code=   # fail for any non-zero exit
         _temp_file=
         _temp_dir=
         _cleanup=$cleanup
@@ -117,52 +124,58 @@ run_tests() {
         errlog=$(mktemp "${test}-errXXXXXX")
 
         echo -n "  Testing ${test//_/ } ... "
-
-        # define "_"-variables, run test, and capture output
         "${testpref}$test" 2>"$errlog" >"$outlog"; ret=$?
         stdout=$(cat "$outlog")
         stderr=$(cat "$errlog")
 
-        # stdout, stderr, and expected exit code all match
-        # FIXME: maybe use 'grep' so we're not limited to environment size
-        if [[ $ret -eq $_exit_code &&
-              $stdout =~ ^$_stdout$ &&
-              $stderr =~ ^$_stderr$ ]]
+        # no _exit_code specified, but non-zero exit
+        if [[ -z $_exit_code && $ret -ne 0 ]]; then
+            status=failed
+            echo "$FAIL (unhandled non-zero exit code)"
+
+        # stdout, stderr, and expected exit code all match; ideally, we should
+        # be using 'grep' here rather so we're not limited to environment size
+        elif [[ $ret -eq $_exit_code && $stdout =~ ^$_stdout$ &&
+                $stderr =~ ^$_stderr$ ]]
         then
-            passed=$(( passed + 1 ))
+            status=passed
             echo "$OK"
 
         # the exit code matches, but some output was unaccounted for
         elif [[ $ret -eq $_exit_code && 
-                ( ! $stdout =~ ^$_stdout$ ||
-                  ! $stderr =~ ^$_stderr$ ) ]]
+                ( ! $stdout =~ ^$_stdout$ || ! $stderr =~ ^$_stderr$ ) ]]
         then
-            iffy=$(( iffy + 1 ))
+            status=iffy
             echo "$NOT_OK (exit $_exit_code OK, bad output)"
 
             echo "    Expected stdout =~ $BOLD${_stdout:-[empty]}$RESET, got:"
             if [[ $stdout ]]; then
-                # FIXME: maybe truncate to ten lines or something
-                #        (time to wrap this in a function)
-                fold -s -w 72 "$outlog" | sed 's/^/      > /'
+                fold "$outlog" | indent
             else
-                echo "      [nothing]"
+                indent "[nothing]"
             fi
 
             echo "    Expected stderr =~ $BOLD${_stderr:-[empty]}$RESET, got:"
             if [[ $stderr ]]; then
-                fold -s -w 72 "$errlog" | sed 's/^/      ! /'
+                fold "$errlog" | indent
             else
-                echo "      [nothing]"
+                indent "[nothing]"
             fi
             echo
 
         else
-            failed=$(( failed + 1 ))
-            echo "$FAIL (exit $ret)"
-            fold -s -w 72 "$errlog" | sed 's/^/    ! /'
+            # FIXME: need a test to see if we can even get here
+            status=failed
+            echo "$FAIL (other unhandled case; exit code was $ret)"
+            fold "$errlog" | indent
             echo
         fi
+
+        case $status in
+            iffy)   iffy=$(( iffy + 1 )) ;;
+            failed) failed=$(( failed + 1 )) ;;
+            passed) passed=$(( passed + 1 )) ;;
+        esac
 
         if (( _cleanup )); then
             rm -f "$outlog" "$errlog"
@@ -170,11 +183,10 @@ run_tests() {
             [[ -f ${_temp_file:-} ]] && rm -f "$_temp_file"
             [[ -d ${_temp_dir:-} ]]  && rm -rf "$_temp_dir"
         fi
-
     done  # for test in tests
 
-    # failed/iffy tests print their own (extra) newline
-    if (( ${#tests[*]} == passed )); then echo; fi
+    # newline if last test passed, since failed/iffy tests print their own
+    if [[ $status == passed ]]; then echo; fi
 
     echo -n "${BOLD}RESULTS:$RESET "
     (( passed )) && echo -n "[$OK=$passed] "

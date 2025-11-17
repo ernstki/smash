@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2154 source=/dev/null
+# shellcheck disable=SC2154,SC2086 source=/dev/null
 source "$(dirname "$0")"/../smash
+
+test_true() {
+    true
+}
+
+test_false() {
+    _exit_code=1
+    false
+}
 
 test_smash_creates_a_temp_file() {
     _stdout=expected
