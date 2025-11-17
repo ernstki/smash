@@ -18,15 +18,14 @@
 # bail on unset variables (FIXME: no useful error message when this happens)
 set -u
 
-VERSION=0.3.1
+VERSION=0.3.2
+FOLDWIDTH=72
 # the test script sourcing this one
 CALLER=${BASH_SOURCE[1]:-}
-# the directory it lives in
-TESTDIR=$(cd "$(dirname "$CALLER")"; pwd)
-# add its directory and <parent>/bin to the search path so we can find the
-# program under test w/out weird relative paths
-PATH="$TESTDIR/..:$TESTDIR/../bin:$PATH"
-FOLDWIDTH=72
+# the directory it lives in; available to test functions
+_test_dir=$(cd "$(dirname "$CALLER")"; pwd)
+# add test script's dir, parent, and ../bin to the search path
+PATH="$_test_dir/..:$_test_dir/../bin:$PATH"
 
 # display colors if stdout is a terminal
 if [[ -t 1 ]]; then
@@ -65,7 +64,6 @@ indent() {
 # Discovery works like this: look for all shell functions defined in the parent
 # script (BASH_SOURCE[1]) prefixed with $testpref, e.g., 'test_some_function'.
 run_tests() {
-    local caller=$CALLER
     local passed=0
     local iffy=0
     local failed=0
@@ -73,11 +71,10 @@ run_tests() {
     local outlog errlog
     local testpref test _temp_file _temp_dir
     local _stdout _stderr _exit_code
-    local _test_dir=$TESTDIR
 
     # to be VERY explicit, you could require that the tests match the script
     # name; uncomment these if that's what's desired
-    #testpref=${caller##*/}
+    #testpref=${CALLER##*/}
     #testpref=${testpref%.*}
     #testpref=${testpref//-/_}
     testpref='test_'
@@ -103,14 +100,14 @@ run_tests() {
 
     # scan the calling script for '[function] ${testpref}_testname()"
     readarray -t tests \
-        < <(sed -n "s/^\(function \)*${testpref}\(.*\) *().*/\2/p" "$caller")
+        < <(sed -n "s/^\(function \)*${testpref}\(.*\) *().*/\2/p" "$CALLER")
 
     if [[ ${#tests[@]} -eq 0 ]]; then
         echo "$ERROR: No tests were discovered." >&2
         exit 1
     fi
 
-    echo "${BOLD}RUNNING TESTS: $BLUE$caller$RESET"
+    echo "${BOLD}RUNNING TESTS: $BLUE$CALLER$RESET"
 
     for test in "${tests[@]}"; do
         # defaults for these three can be overridden by test function
