@@ -9,7 +9,6 @@ help:  # prints this help
 test:  # run automated tests
 	@cd tests; \
 	for test in [0-9][0-9]_*; do \
-		echo; \
 		bash $$test || exit 1; \
 	done
 
