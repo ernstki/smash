@@ -50,7 +50,7 @@ NOTE="${BOLD}${CYAN}NOTE$RESET"
 ERROR="${RED}ERROR$RESET"
 
 fold() {
-    command fold -s -w $FOLDWIDTH "$1" # FIXME: limit lines? (issue #5)
+    command fold -s -w $FOLDWIDTH -- "$1" # FIXME: limit lines? (issue #5)
 }
 
 indent() {
@@ -107,7 +107,7 @@ run_tests() {
         exit 1
     fi
 
-    echo "${BOLD}RUNNING TESTS: $BLUE$CALLER$RESET"
+    echo -e "\n${BOLD}RUNNING TESTS: $BLUE$CALLER$RESET"
 
     for test in "${tests[@]}"; do
         # defaults for these three can be overridden by test function
