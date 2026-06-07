@@ -34,10 +34,7 @@ I don't want to have to _install_ something, so this will always and only ever
 be one file that you `source` at the beginning of your test script.
 
 ```bash
-# if you're on the cluster, you'll need a proxy connection
-pck || pon
-
-# change into your 'tests' directory, then
+# 'cd' into your 'tests' directory, then
 wget https://ernstki.github.io/smash/smash
 
 # or
@@ -46,14 +43,25 @@ curl -LOJ https://ernstki.github.io/smash/smash
 
 ## Usage
 
-Add this line to the top of your script
+Add this line to the top of your test script:
+
 ```bash
-source "$(dirname "$0")"/../smash
+source "$(dirname "$0")"/smash
+# or, if tests are in a subdir…
+#source "$(dirname "$0")"/../smash
 ```
 
+The test scripts script themselves need not have any specific name, but
+prefixing them with, for example `test_` or `01_`, `02_`, and so on will allow
+you to loop through them easier, in a Makefile or something like that.
+
 In the body of your script, create some test functions named
-`test_something_something`; dashes are allowed here. Then, at the bottom of
-your script, include this line to actually invoke the tests:
+`test_something_something`; dashes are allowed here. See the value of
+`testpref` in [`smash` ~line 80`][testpref] you want to use something besides
+`test_`.
+
+Then, at the bottom of your script, include this line to actually invoke the
+tests:
 
 ```bash
 run_tests "$@"
@@ -89,7 +97,7 @@ If you're using [ShellCheck][], you'll probably want to put this at the top of
 your script, too:
 
 ```bash
-# shellcheck disable=SC2154 source=/dev/null
+# shellcheck source-path=SCRIPTDIR
 ```
 
 This suppress the _[Can't follow non-constant source][sc1090]_ warning, and
@@ -206,7 +214,7 @@ of the expected response.
 
 ## Future directions
 
-- create a separate `smashquiz` comand that helps build the test script(s) by
+- create a separate `smashquiz` command that helps build the test script(s) by
   asking a series of questions
 
 ## References
@@ -232,3 +240,5 @@ MIT.
 [shellcheck]: https://www.shellcheck.net
 [sc1090]: https://www.shellcheck.net/wiki/SC1090
 [re]: https://www.gnu.org/software/bash/manual/html_node/Conditional-Constructs.html#index-_005b_005b
+[testpref]: https://github.com/ernstki/smash/blob/8749d360c7daf4c0e5dc9bcf8c28262b6c286daa/smash#L80
+[newdisc]: https://github.com/ernstki/smash/issues/new&labels[]=discussion
