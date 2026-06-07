@@ -14,7 +14,7 @@ test:  # run automated tests
 	done
 
 clean:  # clean test files and other detritus
-	-rm tests/*-{out,err}?????? tests/smoketest*
+	-rm tests/*-out?????? tests/*-err?????? tests/smoketest*
 	-rm -rf tests/nocleanup??????
 
 ##

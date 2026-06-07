@@ -117,13 +117,13 @@ run_tests() {
         _temp_file=
         _temp_dir=
         _cleanup=$cleanup
-        outlog=$(mktemp "${test}-outXXXXXX")
-        errlog=$(mktemp "${test}-errXXXXXX")
+        outlog=$(mktemp -- "${test}-outXXXXXX")
+        errlog=$(mktemp -- "${test}-errXXXXXX")
 
         echo -n "  Testing ${test//_/ } ... "
         "${testpref}$test" 2>"$errlog" >"$outlog"; ret=$?
-        stdout=$(cat "$outlog")
-        stderr=$(cat "$errlog")
+        stdout=$(cat -- "$outlog")
+        stderr=$(cat -- "$errlog")
 
         # no _exit_code specified, but non-zero exit
         if [[ -z $_exit_code && $ret -ne 0 ]]; then
@@ -147,14 +147,14 @@ run_tests() {
 
             echo "    Expected stdout =~ $BOLD${_stdout:-[empty]}$RESET, got:"
             if [[ $stdout ]]; then
-                fold "$outlog" | indent
+                fold -- "$outlog" | indent
             else
                 indent "[nothing]"
             fi
 
             echo "    Expected stderr =~ $BOLD${_stderr:-[empty]}$RESET, got:"
             if [[ $stderr ]]; then
-                fold "$errlog" | indent
+                fold -- "$errlog" | indent
             else
                 indent "[nothing]"
             fi
@@ -164,7 +164,7 @@ run_tests() {
             # FIXME: need a test to see if we can even get here
             status=failed
             echo "$FAIL (other unhandled case; exit code was $ret)"
-            fold "$errlog" | indent
+            fold -- "$errlog" | indent
             echo
         fi
 
@@ -175,10 +175,10 @@ run_tests() {
         esac
 
         if (( _cleanup )); then
-            rm -f "$outlog" "$errlog"
+            rm -f -- "$outlog" "$errlog"
             # clean these up if they were defined in the test function
-            [[ -f ${_temp_file:-} ]] && rm -f "$_temp_file"
-            [[ -d ${_temp_dir:-} ]]  && rm -rf "$_temp_dir"
+            [[ -f ${_temp_file:-} ]] && rm -f -- "$_temp_file"
+            [[ -d ${_temp_dir:-} ]]  && rm -rf -- "$_temp_dir"
         fi
     done  # for test in tests
 

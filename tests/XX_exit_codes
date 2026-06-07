@@ -2,9 +2,10 @@
 # shellcheck disable=SC2154 source=/dev/null
 source "$(dirname "$0")"/../smash
 
+# FIXME: how to run a test that doesn't get run as a test?
 test_non-zero_exit_code_causes_failure() {
-    _exit_code=0
-    true
+    _exit_code=1
+    false
 }
 
 run_tests "$@"
