@@ -129,6 +129,7 @@ run_tests() {
         if [[ -z $_exit_code && $ret -ne 0 ]]; then
             status=failed
             echo "$FAIL (unhandled non-zero exit code)"
+            echo
 
         # stdout, stderr, and expected exit code all match; ideally, we should
         # be using 'grep' here rather so we're not limited to environment size

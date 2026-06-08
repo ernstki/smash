@@ -22,6 +22,6 @@ jobs:
           if git status --porcelain | grep -q .; then
               git add smash
               # source: https://stackoverflow.com/a/949391
-              git commit -m"Update smash from $ref @t$(git rev-parse --short=7 HEAD)"
+              git commit -m"Update smash from $ref @$(git rev-parse --short=7 HEAD)"
               git push
           fi
