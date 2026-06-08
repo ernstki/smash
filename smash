@@ -49,11 +49,12 @@ FAIL="${RED}FAIL$RESET"
 NOTE="${BOLD}${CYAN}NOTE$RESET"
 ERROR="${RED}ERROR$RESET"
 
-fold() {
-    command fold -s -w $FOLDWIDTH -- "$1" # FIXME: limit lines? (issue #5)
+_fold() {
+    # FIXME: limit lines? (issue #5)
+    fold -s -w $FOLDWIDTH -- "$1" 
 }
 
-indent() {
+_indent() {
     { if (( $# == 0 )); then cat; else echo "$*"; fi; } | sed 's/^/      > /'
 }
 
@@ -148,16 +149,16 @@ run_tests() {
 
             echo "    Expected stdout =~ $BOLD${_stdout:-[empty]}$RESET, got:"
             if [[ $stdout ]]; then
-                fold -- "$outlog" | indent
+                _fold "$outlog" | _indent
             else
-                indent "[nothing]"
+                _indent "[nothing]"
             fi
 
             echo "    Expected stderr =~ $BOLD${_stderr:-[empty]}$RESET, got:"
             if [[ $stderr ]]; then
-                fold -- "$errlog" | indent
+                _fold "$errlog" | _indent
             else
-                indent "[nothing]"
+                _indent "[nothing]"
             fi
             echo
 
@@ -165,7 +166,7 @@ run_tests() {
             # FIXME: need a test to see if we can even get here
             status=failed
             echo "$FAIL (other unhandled case; exit code was $ret)"
-            fold -- "$errlog" | indent
+            _fold "$errlog" | _indent
             echo
         fi
 
