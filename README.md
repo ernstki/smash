@@ -79,8 +79,11 @@ Key points for writing test scripts:
     * **the return value of the function is the exit code of the last command
       to run**; this is standard Bash behavior, and smash adheres to the
       Principle of Least Surprise here
-    * however, you can use `test_func_name() ( set -e; […] )` if you want _any_
-      non-zero exit to terminate the test
+    * however, you can either:
+        * judiciously apply `|| return 1` where you want to catch unintended
+          failures, such as a failed file allocation, or
+        * wrap the function in parentheses instead of braces and add `set -e`,
+          if you want _any_ non-zero exit to terminate the test
 * the first part of the test function's name must start with `test_`,
   with the extension removed, and with dashes converted to underscores
     * _e.g._, test functions in `test_my-groovy-script.sh` must start with
